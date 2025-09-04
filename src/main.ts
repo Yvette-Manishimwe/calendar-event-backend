@@ -8,16 +8,19 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 1) Allow CORS for frontend
+  // 1) Allow CORS for local dev and production frontend
   app.enableCors({
-    origin: ['http://localhost:3000'], // cyangwa shyiramo urindi URL ya frontend
+    origin: [
+      'http://localhost:3000', // local frontend
+      'https://calendar-event-pied.vercel.app/', // production frontend URL from .env
+    ],
     methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type','Authorization'],
     credentials: true,
     optionsSuccessStatus: 204,
   });
 
-  // 2) Set global API prefix, but exclude the 'docs' path from it
+  // 2) Set global API prefix, but exclude the 'docs' path
   app.setGlobalPrefix('api', {
     exclude: ['docs'],
   });
@@ -31,8 +34,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
 
-  await app.listen(process.env.PORT || 3000);
+  const port = process.env.PORT || 4050;
+  await app.listen(port);
+  console.log(`🚀 Backend running on port ${port}`);
 }
 bootstrap();
