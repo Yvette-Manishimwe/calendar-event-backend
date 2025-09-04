@@ -12,7 +12,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000', // local frontend
-      'https://calendar-event-pied.vercel.app/', // production frontend URL from .env
+      'https://calendar-event-pied.vercel.app', // production frontend URL from .env
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
