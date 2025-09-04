@@ -5,7 +5,7 @@ import { CreateBookingDto } from 'src/common/dtos/create-booking.dto';
 import { Booking } from 'src/entities/booking.entity';
 import { User } from 'src/entities/users.entity';
 import { Event } from 'src/entities/event.entity'; // <-- Add this import
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class BookingsService {
@@ -36,14 +36,19 @@ export class BookingsService {
     return this.repo.save(booking);
   }
 
-  async listMine(userId: string) {
-    return this.repo.find({ where: { user: { id: userId } }, order: { createdAt: 'DESC' } });
-  }
-
+async listMine(userId: string) {
+  return this.repo.find({
+    where: { user: { id: userId }, status: Not('cancelled') },
+    relations: ['event'],
+  });
+}
 async listByEvent(eventId: string) {
   const bookings = await this.repo.find({
-    where: { event: { id: eventId } },
-    relations: ['user'] // load the user
+    where: { 
+      event: { id: eventId },
+      status: Not('cancelled')
+    },
+    relations: ['user'], // load the user
   });
 
   return bookings.map(b => ({
@@ -53,7 +58,7 @@ async listByEvent(eventId: string) {
     userName: b.user.full_name,
     userEmail: b.user.email,
     bookedAt: b.bookedAt,
-    status: b.status
+    status: b.status,
   }));
 }
 

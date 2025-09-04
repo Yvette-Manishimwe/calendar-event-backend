@@ -57,23 +57,35 @@ export class EventsService {
     return ev;
   }
 
-  async update(id: string, dto: UpdateEventDto) {
-    const ev = await this.findOne(id);
-    
-    if (dto.category) {
-        if (!Object.values(EventCategory).includes(dto.category as EventCategory)) {
-            throw new BadRequestException('Invalid category');
-        }
-    }
+async update(id: string, dto: UpdateEventDto) {
+  const ev = await this.findOne(id);
 
-    Object.assign(ev, {
-      ...dto,
-      startTime: dto.startTime ? new Date(dto.startTime) : ev.startTime,
-      endTime: dto.endTime ? new Date(dto.endTime) : ev.endTime,
-    });
-    if (ev.endTime <= ev.startTime) throw new BadRequestException('endTime must be after startTime');
-    return this.repo.save(ev);
+  if (dto.category) {
+    if (!Object.values(EventCategory).includes(dto.category as EventCategory)) {
+      throw new BadRequestException('Invalid category');
+    }
   }
+
+  // Clean dto: remove empty strings (especially for uuid fields)
+  Object.keys(dto).forEach((key) => {
+    if (dto[key] === '') {
+      delete dto[key];
+    }
+  });
+
+  Object.assign(ev, {
+    ...dto,
+    startTime: dto.startTime ? new Date(dto.startTime) : ev.startTime,
+    endTime: dto.endTime ? new Date(dto.endTime) : ev.endTime,
+  });
+
+  if (ev.endTime <= ev.startTime) {
+    throw new BadRequestException('endTime must be after startTime');
+  }
+
+  return this.repo.save(ev);
+}
+
 
   async move(id: string, dto: MoveEventDto) {
     return this.update(id, { startTime: dto.startTime, endTime: dto.endTime } as any);
