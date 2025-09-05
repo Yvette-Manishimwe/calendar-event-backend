@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Event } from './event.entity';
 import { User } from './users.entity';
 
@@ -9,7 +16,10 @@ export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Event, (e) => e.bookings, { eager: true })
+  @ManyToOne(() => Event, (e) => e.bookings, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   event: Event;
 
   @ManyToOne(() => User, (u) => u.id, { eager: true })
